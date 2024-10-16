@@ -1,0 +1,10 @@
+---
+# This playbook configures a password cracking server
+# For more information see: https://reusablesec.blogspot.com
+
+- name: Install and configure ZeroTier
+  hosts: all
+  roles:
+    - zerotier
+    
+  

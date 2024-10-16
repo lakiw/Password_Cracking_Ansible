@@ -1,0 +1,17 @@
+# Where to store git repositories
+git_repo_dir: ~/repos/
+
+# Where to store pre-built binary tools
+tool_dir: ~/tools/
+
+# Where to store dictionaries/wordlists
+wordlist_dir: ~/wordlist/
+
+# Where to store raw password lists
+raw_dump_dir: ~/dumps/
+
+# Where to store password hashes (ready for cracking)
+password_hash_dir: ~/hashes/
+
+# Where to store potfiles and cracked passwords
+potfile_dir: ~/pots/

@@ -1,0 +1,59 @@
+---
+# This playbook installs zerotier
+# There is a bailout code check the start that checks if
+# /usr/sbin/zerotier-cli is already present
+
+# Check if ZeroTier is installed
+# This way we can skip installation steps
+- name: Check if ZeroTier is installed
+  stat:
+    path: /usr/sbin/zerotier-cli
+  register: is_zerotier_installed
+
+- debug:
+    msg: "ZeroTier already installed. Skipping additional installation tasks."
+  when: is_zerotier_installed.stat.exists
+
+# Add the ZeroTier GPG key to validate the installer
+# Only do this once in case you've already downloaded it before
+- name: Add ZeroTier GPG Key
+  become: true
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/zerotier/ZeroTierOne/main/doc/contact%40zerotier.com.gpg
+    dest: "/etc/apt/trusted.gpg.d/zerotier.asc"
+    mode: "0644"
+    force: false
+  when: is_zerotier_installed.stat.exists == False
+
+- name: Register the ZeroTier GPG Key
+  ansible.builtin.command: gpg --import /etc/apt/trusted.gpg.d/zerotier.asc
+  when: is_zerotier_installed.stat.exists == False
+
+# Download the ZeroTier install script to temp
+- name: Download ZeroTier install script
+  ansible.builtin.get_url:
+    url: https://install.zerotier.com/
+    mode: "744"
+    dest: /tmp/zero_tier_installer.sh
+    force: true
+  when: is_zerotier_installed.stat.exists == False
+
+# Validate the ZeroTier install script using GPG
+# If the validation fails this will return a non-zero value and cause
+# this playbook to fail
+- name: Validate ZeroTier installer
+  ansible.builtin.command: gpg --verify /tmp/zero_tier_installer.sh
+  when: is_zerotier_installed.stat.exists == False
+
+# Run the ZeroTier install script
+- name: Run ZeroTier installer
+  become: true
+  ansible.builtin.shell: /tmp/zero_tier_installer.sh
+  when: is_zerotier_installed.stat.exists == False
+
+# Delete the installer file
+- name: Delete ZeorTier installer
+  ansible.builtin.file:
+    state: absent
+    path: /tmp/zero_tier_installer.sh
+  when: is_zerotier_installed.stat.exists == False
