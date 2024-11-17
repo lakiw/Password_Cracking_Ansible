@@ -1,0 +1,22 @@
+---
+# This playbook is responsible for installing lightdm desktop manager
+
+- name: Install lightdm
+  become: true
+  ansible.builtin.apt:
+    name: lightdm
+    state: present
+
+- name: Install lightdm greeter
+  become: true
+  ansible.builtin.apt:
+    name: lightdm-gtk-greeter
+    state: present
+
+- name: Configure default display manager in debconf
+  become: true
+  debconf:
+    name: 'shared'
+    question: 'shared/default-x-display-manager'
+    vtype: 'select'
+    value: 'lightdm'

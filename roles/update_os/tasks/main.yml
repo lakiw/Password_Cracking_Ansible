@@ -1,0 +1,22 @@
+---
+# This playbook contains general tasks to update and harden the
+# operating system
+
+- name: apt-get update
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Update all Ubuntu packages
+  become: true
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+  when: do_update_packages
+
+- name: Upgrade the OS
+  become: true
+  ansible.builtin.apt:
+    upgrade: dist
+  when: do_upgrade_os
+

@@ -1,0 +1,32 @@
+---
+# This playbook contains tasks to install build tools and compilers
+
+- name: Install make
+  become: true
+  ansible.builtin.apt:
+    name: make
+    state: present
+
+- name: Install cmake
+  become: true
+  ansible.builtin.apt:
+    name: cmake
+    state: present
+
+- name: Install gcc
+  become: true
+  ansible.builtin.apt:
+    name: gcc
+    state: present
+
+- name: Install plocate
+  become: true
+  ansible.builtin.apt:
+    name: plocate
+    state: present
+
+- name: Install git
+  become: true
+  ansible.builtin.apt:
+    name: git
+    state: present

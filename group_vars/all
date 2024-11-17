@@ -15,3 +15,9 @@ password_hash_dir: ~/hashes/
 
 # Where to store potfiles and cracked passwords
 potfile_dir: ~/pots/
+
+# If these playbooks should update applications
+do_update_packages: false
+
+# If these playbooks should upgrade the operating system
+do_upgrade_os: false

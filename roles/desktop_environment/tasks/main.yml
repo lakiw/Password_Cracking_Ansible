@@ -1,0 +1,16 @@
+---
+# This playbook is responsible for configuring the desktop environment
+# Note: Some of the sub playbooks are really only one package installation
+# but I figured I'd break them out to make it easier for me to play
+# with different combinations, and also make it easier to add
+# custumizations as time goes on
+
+- name: Install X-server (Xorg) desktop server
+  include_tasks: xorg.yml
+
+- name: Install i3 window manager
+  include_tasks: i3.yml
+
+- name: Install lightdm desktop manager
+  include_tasks: lightdm.yml
+

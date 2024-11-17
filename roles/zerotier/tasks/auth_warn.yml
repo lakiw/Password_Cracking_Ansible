@@ -1,0 +1,35 @@
+---
+# This playbook warns if the host is joined to a ZeroTier
+# network it is not authorized for.
+# In this case, the admin will need to go into the cloud
+# admin web GUI and authorize the host
+
+# Check if this system is already part of a ZeroTier network
+# First get a list of all ZeroTier connected networks
+- name: List ZeroTier networks
+  become: true
+  ansible.builtin.command: zerotier-cli listnetworks
+  register: zerotier_connected_networks
+
+- name: Define ZeroTier access denied connection status
+  ansible.builtin.set_fact:
+    is_zerotier_denied: "{{ 'ACCESS_DENIED' in zerotier_connected_networks.stdout }}"
+
+# Warn users if the connection is denied and they need
+# to authorize it in the ZeroTier network managment GUI
+- name: Get ZeroTier Host ID
+  become: true
+  ansible.builtin.command: zerotier-cli info
+  register: zerotier_info_output
+  when: is_zerotier_denied
+
+- name: Extract ZeroTier Host ID
+  ansible.builtin.set_fact:
+    zerotier_host_id: "{{ (zerotier_info_output.stdout | split)[2] }}"
+  when: is_zerotier_denied
+
+- debug:
+    msg:
+      - "Warning: You need to manually authorize this host in the ZeroTier network GUI."
+      - "Host ID: {{ zerotier_host_id }}"
+  when: is_zerotier_denied

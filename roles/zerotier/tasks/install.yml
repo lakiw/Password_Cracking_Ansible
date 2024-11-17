@@ -11,7 +11,8 @@
   register: is_zerotier_installed
 
 - debug:
-    msg: "ZeroTier already installed. Skipping additional installation tasks."
+    msg:
+      - "ZeroTier already installed. Skipping additional installation tasks."
   when: is_zerotier_installed.stat.exists
 
 # Add the ZeroTier GPG key to validate the installer

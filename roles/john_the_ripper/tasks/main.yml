@@ -1,0 +1,87 @@
+---
+# This playbook contains tasks to install John the Ripper Bleeding Edge
+# from the github repository
+
+# Start by installing the prerequsite libraries
+
+
+- name: Install pkg-config
+  become: true
+  ansible.builtin.apt:
+    name: pkg-config
+    update_cache: yes
+
+- name: Install libgmp-dev
+  become: true
+  ansible.builtin.apt:
+    name: libgmp-dev
+
+- name: Install libkrb5-dev
+  become: true
+  ansible.builtin.apt:
+    name: libkrb5-dev
+
+- name: Install zlib1g
+  become: true
+  ansible.builtin.apt:
+    name: zlib1g
+
+- name: Install zlib1g-dev
+  become: true
+  ansible.builtin.apt:
+    name: zlib1g-dev
+
+- name: Install libbz2-1.0
+  become: true
+  ansible.builtin.apt:
+    name: libbz2-1.0
+
+- name: Install libbz2-dev
+  become: true
+  ansible.builtin.apt:
+    name: libbz2-dev    
+
+- name: Install libpcap-dev
+  become: true
+  ansible.builtin.apt:
+    name: libpcap-dev
+
+- name: Install yasm
+  become: true
+  ansible.builtin.apt:
+    name: yasm
+
+# Clone the git repository for John the Ripper Bleeding Jumbo
+- name: Read-write git checkout from github
+  ansible.builtin.git:
+    repo: https://github.com/openwall/john.git
+    dest: "{{ git_repo_dir }}/JohnTheRipper"
+    clone: yes
+    update: yes
+
+# Clean up install directory
+- name: Make Clean JtR
+  community.general.make:
+    chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
+    target: clean
+
+# Configure JtR
+- name: Configure JtR
+  ansible.builtin.shell:
+    cmd: ./configure
+    chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
+  register: jtr_config_results
+
+# Validate OpenCL is installed/configured
+- name: Fail if OpenCL not present
+  ansible.builtin.fail:
+    msg:
+      - OpenCL was not detected when trying to configure John the Ripper
+      - "{{ jtr_config_results.stdout }}"
+  when: "'OpenCL support ..................................... yes' not in jtr_config_results.stdout"
+
+# Build JtR
+- name: Make JtR
+  community.general.make:
+    chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
+    target: -sj4

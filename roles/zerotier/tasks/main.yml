@@ -4,5 +4,8 @@
 - name: Install zerotier
   include_tasks: install.yml
 
-- name: Configure zerotier
-  include_tasks: configure.yml
+- name: Join zerotier network
+  include_tasks: join.yml
+
+- name: Warn if not authorized
+  include_tasks: auth_warn.yml

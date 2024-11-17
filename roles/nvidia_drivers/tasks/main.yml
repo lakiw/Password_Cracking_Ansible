@@ -1,0 +1,32 @@
+---
+# This playbook contains general tasks to update and harden the
+# operating system
+
+- name: Remove old NVidia signing key
+  become: true
+  ansible.builtin.apt_key:
+    id: 7fa2af80
+    state: absent
+
+- name: remove ppa
+  apt_repository:
+    repo: ppa:graphics-drivers/ppa
+    state: absent
+
+- name: Install a NVidia driver package from the internet.
+  become: true
+  ansible.builtin.apt:
+    deb: "https://developer.download.nvidia.com/compute/cuda/repos/{{ ansible_distribution|lower }}2404/{{ ansible_architecture }}/cuda-keyring_1.1-1_all.deb"
+    state: present
+
+- name: Install nvidia-open drivers
+  become: true
+  ansible.builtin.apt:
+    name: nvidia-open
+    update_cache: yes
+
+- name: Install cuda drivers
+  become: true
+  ansible.builtin.apt:
+    name: cuda-drivers
+    update_cache: no

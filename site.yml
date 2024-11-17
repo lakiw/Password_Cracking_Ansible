@@ -2,9 +2,36 @@
 # This playbook configures a password cracking server
 # For more information see: https://reusablesec.blogspot.com
 
+# Note: In group_vars all.yml there are variables that
+# specify how many of the update/upgrade tasks should be done.
+# By default this just updates the apt-get cache.
+- name: Perform various update/upgrade processes for the OS
+  hosts: all
+  roles:
+    - update_os
+
+- name: Install a build tools (make, gcc, etc)
+  hosts: all
+  roles:
+    - build_tools
+
 - name: Install and configure ZeroTier
   hosts: all
   roles:
     - zerotier
-    
-  
+
+- name: Install a desktop manager 
+  hosts: all
+  roles:
+    - desktop_environment
+
+- name: Install NVidia drivers
+  hosts: all
+  gather_facts: true
+  roles:
+    - nvidia_drivers
+
+- name: Install John the Ripper
+  hosts: all
+  roles:
+    - john_the_ripper

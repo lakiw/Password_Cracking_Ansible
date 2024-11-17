@@ -1,0 +1,23 @@
+---
+# This playbook configures ZeroTier
+# There is a bailout code check the start that checks if
+# the zerotier-cli reports that ZeroTier is already connected
+
+# Check if this system is already part of a ZeroTier network
+# First get a list of all ZeroTier connected networks
+- name: List ZeroTier networks
+  become: true
+  ansible.builtin.command: zerotier-cli listnetworks
+  register: zerotier_connected_networks
+
+# Now check if any of the networks are connected
+- name: Define ZeroTier successful connection status
+  ansible.builtin.set_fact:
+    is_zerotier_connected: "{{ 'OK' in zerotier_connected_networks.stdout }}"
+
+# Join the ZeroTier network
+# Note: This may be a two step process since the device may need to be authenticated
+- name: Join ZeroTier network
+  become: true
+  ansible.builtin.command: zerotier-cli join {{ zerotier_network }}
+  when: not is_zerotier_connected
