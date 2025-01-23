@@ -13,17 +13,33 @@
     repo: ppa:graphics-drivers/ppa
     state: absent
 
-- name: Install a NVidia driver package from the internet.
+- name: Install a NVidia driver keyring from the internet.
   become: true
   ansible.builtin.apt:
     deb: "https://developer.download.nvidia.com/compute/cuda/repos/{{ ansible_distribution|lower }}2404/{{ ansible_architecture }}/cuda-keyring_1.1-1_all.deb"
     state: present
 
-- name: Install nvidia-open drivers
-  become: true
-  ansible.builtin.apt:
-    name: nvidia-open
-    update_cache: yes
+- name: Install and Updgrade NVidia driver
+  block:
+    - name: Install nvidia-open drivers
+      become: true
+      ansible.builtin.apt:
+        name: nvidia-open
+        update_cache: yes
+
+  rescue:
+    # Nvidia drivers tend to not upgrade gracefully, so its easier to remove then re-add
+    - name: Remove nvidia-open drivers
+      become: true
+      ansible.builtin.apt:
+        name: nvidia-open
+        state: absent
+
+    - name: 2nd try - Install nvidia-open drivers
+      become: true
+      ansible.builtin.apt:
+        name: nvidia-open
+        update_cache: no
 
 - name: Install cuda drivers
   become: true

@@ -35,3 +35,8 @@
   hosts: all
   roles:
     - john_the_ripper
+
+- name: Install Hashcat
+  hosts: all
+  roles:
+    - hashcat

@@ -1,0 +1,41 @@
+# This playbook contains tasks to install Hashcat
+# from the github repository. The advantage of this
+# approach compared to just installing the binaries
+# is you can then checkout feature branches and
+# install them.
+
+# Start by installing the prerequsite libraries
+
+# Set the Hashcat specific variables
+- name: Add XDG_DATA_HOME to /etc/environment
+  become: true
+  ansible.builtin.lineinfile:
+    dest: "/etc/environment"
+    state: present
+    regexp: "^XDG_DATA_HOME="
+    line: "XDG_DATA_HOME={{ potfile_dir }}"
+
+# Clone the git repository for John the Ripper Bleeding Jumbo
+- name: Read-write git checkout from github
+  ansible.builtin.git:
+    repo: https://github.com/hashcat/hashcat.git
+    dest: "{{ git_repo_dir }}/hashcat"
+    clone: yes
+    update: yes
+
+# Clean up install directory
+# Note: Passing -E to become so it'll use the local environment variables and directories
+- name: Make Clean Hashcat
+  become: true
+  become_flags: "-E"
+  community.general.make:
+    chdir: "{{ git_repo_dir }}/hashcat"
+    target: clean
+
+# Build and Install Hashcat
+- name: Make Hashcat
+  become: true
+  become_flags: "-E"
+  community.general.make:
+    chdir: "{{ git_repo_dir }}/hashcat"
+    target: install

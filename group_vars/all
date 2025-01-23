@@ -14,6 +14,8 @@ raw_dump_dir: ~/dumps/
 password_hash_dir: ~/hashes/
 
 # Where to store potfiles and cracked passwords
+# Note: Hashcat will save pots to [potfile_dir]/hashcat/
+# as this will also be set as your $XDG_DATA_HOME variable
 potfile_dir: ~/pots/
 
 # If these playbooks should update applications
