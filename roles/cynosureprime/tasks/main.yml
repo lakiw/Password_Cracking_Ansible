@@ -1,0 +1,50 @@
+---
+# This playbook installs a number of tools developed by
+# teammembers (and related friends) of Cynosureprime
+#
+# The big items are MDXFind (A great password cracker) and
+# rling which is useful for managing wordlists.
+
+# Install MDXFind. Picking the github repo since it's easier to 
+# download and get working than a random collection of files
+# Setting update to no, so it won't complain if you
+# change the mdxfind binary to be executable
+- name: git checkout MDXFind from github
+  ansible.builtin.git:
+    repo: https://github.com/cyclone-github/mdxfind
+    dest: "{{ git_repo_dir }}/mdxfind"
+    clone: yes
+    update: no
+
+# Install dependencies for mdxfind
+- name: Install libjudy
+  become: true
+  ansible.builtin.apt:
+    name: libjudydebian1
+
+- name: Install libmhash2
+  become: true
+  ansible.builtin.apt:
+    name: libmhash2
+
+- name: Install librhash0
+  become: true
+  ansible.builtin.apt:
+    name: librhash0
+
+- name: Install libpcre3
+  become: true
+  ansible.builtin.apt:
+    name: libpcre3
+
+- name: Make mdxfind executable
+  ansible.builtin.file:
+    path: "{{ git_repo_dir }}/mdxfind/binaries/mdxfind"
+    mode: a+x
+
+# Install rling
+- name: git checkout Rling from github
+  ansible.builtin.git:
+    repo: https://github.com/Cynosureprime/rling.git
+    dest: "{{ git_repo_dir }}/rling"
+    clone: yes

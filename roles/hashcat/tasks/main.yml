@@ -16,26 +16,75 @@
     line: "XDG_DATA_HOME={{ potfile_dir }}"
 
 # Clone the git repository for John the Ripper Bleeding Jumbo
-- name: Read-write git checkout from github
+- name: git checkout Hashcat from github
   ansible.builtin.git:
     repo: https://github.com/hashcat/hashcat.git
     dest: "{{ git_repo_dir }}/hashcat"
     clone: yes
     update: yes
+  register: hashcat_update
 
-# Clean up install directory
-# Note: Passing -E to become so it'll use the local environment variables and directories
-- name: Make Clean Hashcat
-  become: true
-  become_flags: "-E"
-  community.general.make:
-    chdir: "{{ git_repo_dir }}/hashcat"
-    target: clean
+# Only build hashcat if it has been updated
+- block:
+  # Clean up install directory
+  # Note: Passing -E to become so it'll use the local environment variables and directories
+  - name: Make Clean Hashcat
+    become: true
+    become_flags: "-E"
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hashcat"
+      target: clean
 
-# Build and Install Hashcat
-- name: Make Hashcat
-  become: true
-  become_flags: "-E"
-  community.general.make:
-    chdir: "{{ git_repo_dir }}/hashcat"
-    target: install
+  # Build and Install Hashcat
+  - name: Make Hashcat
+    become: true
+    become_flags: "-E"
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hashcat"
+      target: install
+  
+  when: hashcat_update.changed
+
+# Install hashcat_utils
+- name: Git checkout of Hashcat Utils
+  ansible.builtin.git:
+    repo: https://github.com/hashcat/hashcat-utils.git
+    dest: "{{ git_repo_dir }}/hashcat-utils"
+    clone: yes
+    update: yes
+  register: hc_utils_update
+
+# Only build hashcat_utils if it has been updated or the system has been updated
+- block:
+  # Clean hashcat_utils
+  - name: Clean Hashcat_Utils
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hashcat-utils/src"
+      target: clean
+
+  # Build hashcat_utils
+  - name: Make Hashcat_Utils
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hashcat-utils/src"
+      target: all
+
+  # Find the created binaries (so we can move them
+  - name: Find hashcat utils binaries
+    ansible.builtin.find:
+      paths: "{{ git_repo_dir }}/hashcat-utils/src"
+      file_type: file
+      use_regex: false
+      patterns:
+        - '*.bin'
+    register: hc_utils_binlist
+
+  # Move the binary files to the tools directory
+  - name: Move hashcat utils binaries to tools directory
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "{{ tools_dir }}/hashcat-utils/"
+      remote_src: true
+      mode: "a+x"
+    loop: "{{ hc_utils_binlist.files|map(attribute='path')|list }}"
+
+  when: hc_utils_update.changed or do_update_packages or do_upgrade_os

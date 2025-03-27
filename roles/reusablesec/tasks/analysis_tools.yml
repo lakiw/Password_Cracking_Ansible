@@ -1,0 +1,26 @@
+---
+# Contains tools I wrote to review passwords and
+# password cracking sessions
+
+# Clone the git repository for Password Research Tools
+- name: Git checkout of Password Research Tools
+  ansible.builtin.git:
+    repo: https://github.com/lakiw/Password_Research_Tools.git
+    dest: "{{ git_repo_dir }}/Password_Research_Tools"
+    clone: yes
+    update: yes
+
+# This is the Jupyter Labs Notebooks I use for tracking
+# password cracking sessions
+- name: Git checkout of JupyterLabs PW Noteboks
+  ansible.builtin.git:
+    repo: https://github.com/lakiw/Jupyter-Password-Cracking-Framework.git
+    dest: "{{ git_repo_dir }}/Jupyter_Password_Cracking"
+    clone: yes
+    update: yes
+
+- name: Install pip requirepments for JupyterLabs PW Notebooks
+  ansible.builtin.pip:
+    requirements: "{{ git_repo_dir }}/Jupyter_Password_Cracking/requirements.txt"
+    virtualenv: "{{python_venv_dir}}/rsec/"
+    virtualenv_python: python3

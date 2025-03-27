@@ -30,3 +30,27 @@
   ansible.builtin.apt:
     name: git
     state: present
+
+- name: Install pip3
+  become: true
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+
+- name: Install virtualenv via pip
+  become: true
+  ansible.builtin.apt:
+    name: python3-venv
+    state: present
+
+- name: Install virtualenv via pip
+  become: true
+  ansible.builtin.apt:
+    name: python3-virtualenv
+    state: present
+
+- name: Install rust
+  become: true
+  ansible.builtin.apt:
+    name: rustc
+    state: present

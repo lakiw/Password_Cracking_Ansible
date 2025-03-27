@@ -1,0 +1,22 @@
+---
+# This playbook installs a number of tools designed
+# to analyze cracked passwords
+#
+
+- name: git checkout pack from github
+  ansible.builtin.git:
+    repo: https://github.com/iphelix/pack.git
+    dest: "{{ git_repo_dir }}/pack"
+    clone: yes
+
+- name: git checkout rulefinder from github
+  ansible.builtin.git:
+    repo: https://github.com/synacktiv/rulesfinder.git
+    dest: "{{ git_repo_dir }}/rulefinder
+    clone: yes
+
+- name: git checkout pack2 from github
+  ansible.builtin.git:
+    repo: https://github.com/hops/pack2.git
+    dest: "{{ git_repo_dir }}/pack2
+    clone: yes

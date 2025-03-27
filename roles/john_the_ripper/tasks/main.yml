@@ -58,30 +58,35 @@
     dest: "{{ git_repo_dir }}/JohnTheRipper"
     clone: yes
     update: yes
+  register: jtr_update
 
-# Clean up install directory
-- name: Make Clean JtR
-  community.general.make:
-    chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
-    target: clean
+# Only build JtR if the repo has been updated or the system has been updated
+- block:
+  # Clean up install directory
+  - name: Make Clean JtR
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
+      target: clean
 
-# Configure JtR
-- name: Configure JtR
-  ansible.builtin.shell:
-    cmd: ./configure
-    chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
-  register: jtr_config_results
+  # Configure JtR
+  - name: Configure JtR
+    ansible.builtin.shell:
+      cmd: ./configure
+      chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
+    register: jtr_config_results
 
-# Validate OpenCL is installed/configured
-- name: Fail if OpenCL not present
-  ansible.builtin.fail:
-    msg:
-      - OpenCL was not detected when trying to configure John the Ripper
-      - "{{ jtr_config_results.stdout }}"
-  when: "'OpenCL support ..................................... yes' not in jtr_config_results.stdout"
+  # Validate OpenCL is installed/configured
+  - name: Fail if OpenCL not present
+    ansible.builtin.fail:
+      msg:
+        - OpenCL was not detected when trying to configure John the Ripper
+        - "{{ jtr_config_results.stdout }}"
+    when: "'OpenCL support ..................................... yes' not in jtr_config_results.stdout"
 
-# Build JtR
-- name: Make JtR
-  community.general.make:
-    chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
-    target: -sj4
+  # Build JtR
+  - name: Make JtR
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
+      target: -sj4
+  
+  when: jtr_update.changed or do_update_packages or do_upgrade_os

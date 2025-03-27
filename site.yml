@@ -40,3 +40,22 @@
   hosts: all
   roles:
     - hashcat
+
+# Install Reusablesec Research Tools
+# This includes PCFG + others
+- name: Install Reusablesec Tools
+  hosts: all
+  roles:
+    - reusablesec
+
+# This includes MDXFind
+- name: Install Cynosureprime Tools
+  hosts: all
+  roles:
+    - cynosureprime
+
+# Install hcxtools for WPA cracking
+- name: Install hcxtools Tools
+  hosts: all
+  roles:
+    - hcxtools

@@ -2,7 +2,7 @@
 git_repo_dir: ~/repos/
 
 # Where to store pre-built binary tools
-tool_dir: ~/tools/
+tools_dir: ~/tools/
 
 # Where to store dictionaries/wordlists
 wordlist_dir: ~/wordlist/
@@ -17,6 +17,10 @@ password_hash_dir: ~/hashes/
 # Note: Hashcat will save pots to [potfile_dir]/hashcat/
 # as this will also be set as your $XDG_DATA_HOME variable
 potfile_dir: ~/pots/
+
+# Python virtual environment location
+# This is where python virtual environments will be created
+python_venv_dir: ~/mypy/
 
 # If these playbooks should update applications
 do_update_packages: false

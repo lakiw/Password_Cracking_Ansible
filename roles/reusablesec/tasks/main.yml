@@ -1,0 +1,13 @@
+---
+# This playbook contains tasks to install a bunch 
+# of the password cracking tools I've developed
+# over the years. The big one people might be
+# interested in is the PCFG password guess generator
+# but I'm also including things like the Jupyter Notebooks
+# and password analysis tools I use in my research
+
+- name: Install PCFG tools
+  include_tasks: pcfg.yml
+
+- name: Install reusablesec analysis tools
+  include_tasks: analysis_tools.yml

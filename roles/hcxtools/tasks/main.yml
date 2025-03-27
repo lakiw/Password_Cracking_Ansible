@@ -1,0 +1,74 @@
+---
+# This playbook contains tasks to install HCXTools for cracking
+# wireless WPA hashes
+
+
+# Start by installing the prerequsite libraries
+- name: Install pkg-config
+  become: true
+  ansible.builtin.apt:
+    name: pkg-config
+    update_cache: yes
+
+- name: Install libpcap-dev
+  become: true
+  ansible.builtin.apt:
+    name: libpcap-dev
+    update_cache: yes
+
+- name: Install libcurl4-openssl-dev
+  become: true
+  ansible.builtin.apt:
+    name: libcurl4-openssl-dev
+    update_cache: yes
+
+- name: Remove libssl-dev if it is below version 3.0
+  ansible.builtin.package:
+    name: libssl-dev<3.0
+    state: absent
+
+- name: Install libssl-dev
+  become: true
+  ansible.builtin.apt:
+    name: libssl-dev>=3.0
+    update_cache: yes
+
+# Clone the repository
+- name: Clone hcxtools
+  ansible.builtin.git:
+    repo: https://github.com/ZerBea/hcxtools.git
+    dest: "{{ git_repo_dir }}/hcxtools"
+    clone: yes
+    update: yes
+  register: hcxtools_update
+
+# Only build hcxtools if the repo has been updated or the system has been updated
+- block:
+  # Clean up install directory
+  - name: Make Clean hcxtools
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hcxtools/"
+      target: clean
+
+  # Build hcxtools
+  - name: Make hcxtools
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hcxtools"
+      target: all
+      params:
+        NUM_THREADS: 4
+    environment:
+      PKG_CONFIG_PATH: /usr/local/lib64/pkgconfig
+      LD_LIBRARY_PATH: /usr/local/lib64
+
+  - name: Install hcxtools
+    become: true
+    become_flags: "-E"
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hcxtools"
+      target: install
+    environment:
+      PKG_CONFIG_PATH: /usr/local/lib64/pkgconfig
+      LD_LIBRARY_PATH: /usr/local/lib64
+
+  when: hcxtools_update.changed or do_update_packages or do_upgrade_os
