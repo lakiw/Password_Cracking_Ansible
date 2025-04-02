@@ -1,0 +1,123 @@
+---
+# Responsible for downloading wordlists that
+# are publicly available that I always want on my cracking system
+
+
+# Make the top level wordlist folder
+- name: Create wordlist directory
+  ansible.builtin.file:
+    path: "{{ wordlist_dir }}"
+    state: directory
+    mode: '0755'
+
+# Download common wordlists
+- name: Download dic0294
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/trapd00r/Documentation/refs/heads/master/wordlists/dic-0294.txt
+    dest: "{{ wordlist_dir }}"
+    force: no
+
+- name: Download RockYou (unique)
+  ansible.builtin.get_url:
+    url: https://hashmob.net/api/v2/downloads/research/wordlists/rockyou.txt
+    dest: "{{ wordlist_dir }}"
+    force: no
+
+- name: Download zxcvbn
+  ansible.builtin.get_url:
+    url: https://hashmob.net/api/v2/downloads/research/wordlists/zxcvbn.txt
+    dest: "{{ wordlist_dir }}"
+    force: no
+
+# The following chunk of tasks relate to downloading hasmob found lists
+# which also requries 7zip
+#
+# Note, this always updates with the new founds each time this is run
+# which is why it's only run when "do_download_found_lists" is enabled
+#
+- block:
+  - name: Create hashmob found directory
+    ansible.builtin.file:
+      path: "{{ wordlist_dir }}/hashmob"
+      state: directory
+      mode: '0755'
+
+  - name: Install p7zip-full
+    become: true
+    ansible.builtin.apt:
+      name: p7zip-full
+      update_cache: yes
+
+  - name: Download hashmob official full
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.official.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Download hashmob official huge
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.huge.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Download hashmob official large
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.large.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Download hashmob official medium
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.medium.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Download hashmob official small
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.small.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Download hashmob official tiny
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.tiny.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Download hashmob official mini
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.mini.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Download hashmob official micro
+    ansible.builtin.get_url:
+      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.micro.found.7z
+      dest: "{{ wordlist_dir }}/hashmob/"
+      force: true
+
+  - name: Unzip all 7z files
+    ansible.builtin.command: "7za x {{ wordlist_dir }}/hashmob/*"
+    args:
+      chdir: "{{ wordlist_dir }}/hashmob/"
+
+  # Cleanup by deleting all the 7zip files
+  - name: Find all hashmob 7z files
+    ansible.builtin.find:
+      path: "{{ wordlist_dir }}/hashmob/*.7z"
+    register: hashmob_cleanup
+    ignore_errors: true
+
+  - name: debug print
+    ansible.builtin.debug:
+      msg: "an item: {{ item.path }}"
+    with_items: "{{ hashmob_cleanup }}"
+
+  - name: Delete hashmob 7z files
+    ansible.builtin.file:
+      path: "{{ item.path }}"
+      state: absent
+    with_items: "{{ hashmob_cleanup }}"
+    ignore_errors: true
+
+  when: do_download_found_lists

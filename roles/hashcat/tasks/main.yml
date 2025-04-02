@@ -1,3 +1,4 @@
+---
 # This playbook contains tasks to install Hashcat
 # from the github repository. The advantage of this
 # approach compared to just installing the binaries

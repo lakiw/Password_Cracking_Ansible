@@ -59,3 +59,9 @@
   hosts: all
   roles:
     - hcxtools
+
+# Download password cracking wordlists I commonly use
+- name: Download wordlists
+  hosts: all
+  roles:
+    - download_wordlists

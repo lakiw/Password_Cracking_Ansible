@@ -27,3 +27,8 @@ do_update_packages: false
 
 # If these playbooks should upgrade the operating system
 do_upgrade_os: false
+
+# If these playbooks should download updated found wordlists
+# from cracking sites like hashmob
+# WARNING: THIS CAN TAKE A WHILE AND SIGNIFICANT BANDWITDTH
+do_download_found_lists: true
