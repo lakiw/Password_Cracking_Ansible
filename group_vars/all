@@ -32,3 +32,14 @@ do_upgrade_os: false
 # from cracking sites like hashmob
 # WARNING: THIS CAN TAKE A WHILE AND SIGNIFICANT BANDWITDTH
 do_download_found_lists: true
+
+# The hashmob wordlists to download. They have a lot of
+# different sizes to pick from. You can grab the full
+# list along with associated ID at
+# https://hashmob.net/api/v2/downloads/research/official
+hashmob_wordlist_list:
+  - {'id':8, 'name':'hashmob.net.official.found'}
+  - {'id':4, 'name':'hashmob.net.larger.found'}
+  - {'id':5, 'name':'hashmob.net.medium.found'}
+  - {'id':9, 'name':'hashmob.net.small.found'}
+  - {'id':6, 'name':'hashmob.net.micro.found'}

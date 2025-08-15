@@ -34,6 +34,10 @@
       ansible.builtin.apt:
         name: nvidia-open
         state: absent
+    
+    - name: Give hint to future me when this fails again
+      ansible.builtin.debug:
+        msg: "You may need to run 'apt --fix-broken install' TWICE to fully remove and fix previous driver installs"
 
     - name: 2nd try - Install nvidia-open drivers
       become: true

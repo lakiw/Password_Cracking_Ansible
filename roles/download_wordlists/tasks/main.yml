@@ -36,6 +36,7 @@
 # which is why it's only run when "do_download_found_lists" is enabled
 #
 - block:
+
   - name: Create hashmob found directory
     ansible.builtin.file:
       path: "{{ wordlist_dir }}/hashmob"
@@ -48,76 +49,55 @@
       name: p7zip-full
       update_cache: yes
 
-  - name: Download hashmob official full
+  - name: Download JSON file of Hashmob wordlists
+    ansible.builtin.uri:
+      url: "https://hashmob.net/api/v2/downloads/research/official/"
+      method: GET
+      return_content: true
+    register: hashmob_response_json
+
+  - name: Get the hashmob filenames
+    ansible.builtin.set_fact:
+      hashmob_wordlist_list: "{{ hashmob_wordlist_list | replace(item, item | combine({'file_name': (hashmob_response_json |  community.general.json_query('json') | selectattr('id', 'equalto', item.id) | first).file_name  })) }}"
+    loop: "{{ hashmob_wordlist_list }}"
+    loop_control:
+      label: "{{ item.name }}"
+
+  - name: debug
+    ansible.builtin.debug:
+      msg: "{{ hashmob_wordlist_list }}"
+
+  - name: Download hashmob wordlists
     ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.official.found.7z
+      url: "https://hashmob.net/api/v2/downloads/research/official/{{ item.file_name }}"
       dest: "{{ wordlist_dir }}/hashmob/"
       force: true
+    loop: "{{ hashmob_wordlist_list }}"
+    loop_control:
+      label: "{{ item.name }}"
 
-  - name: Download hashmob official huge
-    ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.huge.found.7z
-      dest: "{{ wordlist_dir }}/hashmob/"
-      force: true
-
-  - name: Download hashmob official large
-    ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.large.found.7z
-      dest: "{{ wordlist_dir }}/hashmob/"
-      force: true
-
-  - name: Download hashmob official medium
-    ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.medium.found.7z
-      dest: "{{ wordlist_dir }}/hashmob/"
-      force: true
-
-  - name: Download hashmob official small
-    ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.small.found.7z
-      dest: "{{ wordlist_dir }}/hashmob/"
-      force: true
-
-  - name: Download hashmob official tiny
-    ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.tiny.found.7z
-      dest: "{{ wordlist_dir }}/hashmob/"
-      force: true
-
-  - name: Download hashmob official mini
-    ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.mini.found.7z
-      dest: "{{ wordlist_dir }}/hashmob/"
-      force: true
-
-  - name: Download hashmob official micro
-    ansible.builtin.get_url:
-      url: https://hashmob.net/api/v2/downloads/research/official/hashmob.net_2025-03-23.micro.found.7z
-      dest: "{{ wordlist_dir }}/hashmob/"
-      force: true
-
-  - name: Unzip all 7z files
-    ansible.builtin.command: "7za x {{ wordlist_dir }}/hashmob/*"
+  - name: Rename hashmob wordlists to remove dates
+    ansible.builtin.command: "7za rn {{ item.file_name }} {{ item.file_name[:-3] }} {{ item.name }}"
+    loop: "{{ hashmob_wordlist_list }}"
+    loop_control:
+      label: "{{ item.name }}"
     args:
       chdir: "{{ wordlist_dir }}/hashmob/"
 
-  # Cleanup by deleting all the 7zip files
-  - name: Find all hashmob 7z files
-    ansible.builtin.find:
-      path: "{{ wordlist_dir }}/hashmob/*.7z"
-    register: hashmob_cleanup
-    ignore_errors: true
+  - name: Unzip hashmob wordlist
+    ansible.builtin.command: "7za x -y {{ item.file_name }}"
+    loop: "{{ hashmob_wordlist_list }}"
+    loop_control:
+      label: "{{ item.name }}"
+    args:
+      chdir: "{{ wordlist_dir }}/hashmob/"
 
-  - name: debug print
-    ansible.builtin.debug:
-      msg: "an item: {{ item.path }}"
-    with_items: "{{ hashmob_cleanup }}"
-
-  - name: Delete hashmob 7z files
+  - name: Delete hashmob wordlist 7z
     ansible.builtin.file:
-      path: "{{ item.path }}"
+      path: "{{ wordlist_dir }}/hashmob/{{ item.file_name }}"
       state: absent
-    with_items: "{{ hashmob_cleanup }}"
-    ignore_errors: true
+    loop: "{{ hashmob_wordlist_list }}"
+    loop_control:
+      label: "{{ item.name }}"
 
   when: do_download_found_lists
