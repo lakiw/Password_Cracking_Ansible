@@ -2,17 +2,17 @@
 **Bottom Line Up Front (BLUF):** Ansible playbooks for configuring and updating an **Ubuntu 24.04 LTS Server** with a **NVidia graphics card** for password cracking and password security research.
 
 ## Background and Overview
-I often find myself needing to provision and update my password cracking servers. This could be because I'm deploying a new system, making use of cloud resources, or simply that I totally trashed my previous setup trying to install a random machine learning library. In the past this would usually take me a day to get my core tools installed and working. I'd also always seem to forget some tool or resource which would lead to more wasted time, usually when I was in the middle of another task I'd rather be workign on!
+I often find myself needing to provision and update my password cracking servers. This could be because I'm deploying a new system, making use of cloud resources, or simply that I totally trashed my previous setup trying to install a random machine learning library. In the past this would usually take me a day to get my core tools installed and working. I'd also always seem to forget some tool or resource which would lead to more wasted time, usually when I was in the middle of another task, I'd rather be working on!
 
-That's the problem these Ansible playbooks are meant to solve. By automating the install process, I can kick these scripts off, walk away, and come back to a system that is already set up and ready to crack hashes. As an added bonus, I can also periodiaclly re-run these playbooks to update my system. Considering John the Ripper tends to get get updated monthly (if not weekly), being able to automate the build process has been incredably helpful for me to quickly gain access to new features and fixes without having to manually put in the work to keep on top of my patching.
+That's the problem these Ansible playbooks are meant to solve. By automating the installation process, I can kick these scripts off, walk away, and come back to a system that is already set up and ready to crack hashes. As an added bonus, I can also periodically re-run these playbooks to update my system. Considering John the Ripper tends to recieve updates monthly (if not weekly), being able to automate the build process has been incredibly helpful for me to quickly gain access to new features and fixes without having to manually put in the work to keep on top of my patching.
 
-## Quick Setup And Running Instructions
+## Quick Setup and Running Instructions
 1. Install Ubuntu 24.04 LTS to the target system
     - Create an account that is remotely accessible via SSH and has sudo privileges. This will be the main password cracking user and the tools/wordlists will be provisioned for this user.
     - **(Optional)**: Generate (or copy over an existing) SSH certificate for the user so you don't need to type a password when logging in or running the Ansible playbooks.
 
 2. **(Optional)** Set up a ZeroTier VPN network
-    - **Reason**: This is a great way to enable remote connectivity to servers behind NAT that do not have public IP addresses. ZeroTier is free as long as your network size doesn't exceed 25 devices so if you are only managing a few servers is can be a great option. As an added bonus, I've used it in past years on the Defcon Wifi network so it's an effective way to manage remote systems when participating in the Crack Me If You Can competition.
+    - **Reason**: This is a great way to enable remote connectivity to servers behind NAT that do not have public IP addresses. ZeroTier is free as long as your network size doesn't exceed 25 devices so if you are only managing a few servers is can be a great option. As an added bonus, I've used it in past years on the Defcon Wi-Fi network so it's an effective way to manage remote systems when participating in the Crack Me If You Can competition.
     - ZeroTier Account Setup Info: https://docs.zerotier.com/start/
 
 3. Create/Configure a **hosts.ini** file
@@ -67,7 +67,7 @@ That's the problem these Ansible playbooks are meant to solve. By automating the
 - zxcvbn
 
 #### Desktop Environment
-**Warnign:** This is more of something I've been playing around with vs. a real work environment. You will probably be better off installing a GUI with Ubuntu vs. using the environment in this deployment.
+**Warning:** This is more of something I've been playing around with vs. a real work environment. You will probably be better off installing a GUI with Ubuntu vs. using the environment in this deployment.
 - Xorg Display Server
 - I3 Windows Server
-- LightDM Destop Manager 
+- LightDM Desktop Manager 
