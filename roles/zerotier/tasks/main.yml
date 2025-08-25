@@ -1,11 +1,14 @@
 ---
 # This playbook is responsible for installing and configuring ZeroTier VPN
+# Only run it if the zerotier network is defined for the host
+- name: Tasks for installing and configuring zerotier
+  block:
+  - name: Install zerotier
+    include_tasks: install.yml
 
-- name: Install zerotier
-  include_tasks: install.yml
+  - name: Join zerotier network
+    include_tasks: join.yml
 
-- name: Join zerotier network
-  include_tasks: join.yml
-
-- name: Warn if not authorized
-  include_tasks: auth_warn.yml
+  - name: Warn if not authorized
+    include_tasks: auth_warn.yml
+  when: zerotier_network is defined
