@@ -101,3 +101,7 @@
       label: "{{ item.name }}"
 
   when: do_download_found_lists
+  rescue:
+    - name: Ignore errors with hashmob wordlists and continue
+      debug:
+        msg: "Unable to download wordlists. Hashmob may not have uploaded the newest ones if you are getting 404 errors"

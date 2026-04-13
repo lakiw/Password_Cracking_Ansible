@@ -23,7 +23,7 @@ potfile_dir: ~/pots/
 python_venv_dir: ~/mypy/
 
 # If these playbooks should update applications
-do_update_packages: false
+do_update_packages: true
 
 # If these playbooks should upgrade the operating system
 do_upgrade_os: false
@@ -43,3 +43,6 @@ hashmob_wordlist_list:
   - {'id':5, 'name':'hashmob.net.medium.found'}
   - {'id':9, 'name':'hashmob.net.small.found'}
   - {'id':6, 'name':'hashmob.net.micro.found'}
+
+# If a custom desktop GUI should be installed by this script
+do_install_custom_desktop: false

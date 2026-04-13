@@ -51,6 +51,16 @@
   ansible.builtin.apt:
     name: yasm
 
+- name: Install openssl headers
+  become: true
+  ansible.builtin.apt:
+    name: libssl-dev
+
+- name: Install opencl headers
+  become: true
+  ansible.builtin.apt:
+    name: ocl-icd-opencl-dev
+
 # Clone the git repository for John the Ripper Bleeding Jumbo
 - name: Read-write git checkout from github
   ansible.builtin.git:
@@ -62,11 +72,6 @@
 
 # Only build JtR if the repo has been updated or the system has been updated
 - block:
-  # Clean up install directory
-  - name: Make Clean JtR
-    community.general.make:
-      chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
-      target: clean
 
   # Configure JtR
   - name: Configure JtR
@@ -74,6 +79,12 @@
       cmd: ./configure
       chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
     register: jtr_config_results
+
+  # Clean up install directory
+  - name: Make Clean JtR
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/JohnTheRipper/src"
+      target: clean
 
   # Validate OpenCL is installed/configured
   - name: Fail if OpenCL not present

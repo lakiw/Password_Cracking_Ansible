@@ -20,3 +20,9 @@
     repo: https://github.com/hops/pack2.git
     dest: "{{ git_repo_dir }}/pack2
     clone: yes
+
+- name: git checkout analyze_hc_restore from github
+  ansible.builtin.git:
+    repo: https://github.com/philsmd/analyze_hc_restore
+    dest: "{{ git_repo_dir }}/analyze_hc_restore
+    clone: yes

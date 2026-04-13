@@ -29,11 +29,20 @@
 
   rescue:
     # Nvidia drivers tend to not upgrade gracefully, so its easier to remove then re-add
-    - name: Remove nvidia-open drivers
+    - name: Purge all NVIDIA packages
       become: true
       ansible.builtin.apt:
-        name: nvidia-open
+        name: "^nvidia-.*"
         state: absent
+        purge: yes
+        autoremove: no
+        update_cache: no
+      ignore_errors: yes
+
+    - name: Autoremove unused packages after NVIDIA purge
+      become: true
+      ansible.builtin.apt:
+        autoremove: yes
     
     - name: Give hint to future me when this fails again
       ansible.builtin.debug:
@@ -50,3 +59,9 @@
   ansible.builtin.apt:
     name: cuda-drivers
     update_cache: no
+
+# - name: Install NVidia Toolkit
+#   become: true
+#   ansible.builtin.apt:
+#     name: sudo apt install nvidia-cuda-toolkit
+#     update_cache: no

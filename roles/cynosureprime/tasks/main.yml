@@ -14,7 +14,8 @@
     repo: https://github.com/cyclone-github/mdxfind
     dest: "{{ git_repo_dir }}/mdxfind"
     clone: yes
-    update: no
+    force: yes
+  register: mdxfind_update
 
 # Install dependencies for mdxfind
 - name: Install libjudy
@@ -37,14 +38,92 @@
   ansible.builtin.apt:
     name: libpcre3
 
+# Now we need to unzip the file. The zipfile includes the version number
+# so we'll need to find it as well.
+
+# Probably already installed but doesn't hurt to check
+- name: Install unzip
+  become: true
+  ansible.builtin.apt:
+    name: unzip
+
+- name: Find the mdx zip files
+  ansible.builtin.find:
+    paths: "{{ git_repo_dir }}/mdxfind/"
+    patterns: "*.zip"
+  register: mdx_zip_files
+
+# Probably only one zip, but making it a loop to be sure
+- name: Unzip mdxfiles
+  ansible.builtin.unarchive:
+    src: "{{ git_repo_dir }}/mdxfind/{{ item.path | basename }}"
+    dest: "{{ git_repo_dir }}/mdxfind/"
+    remote_src: yes
+  loop: "{{ mdx_zip_files.files }}"
+
 - name: Make mdxfind executable
   ansible.builtin.file:
-    path: "{{ git_repo_dir }}/mdxfind/binaries/mdxfind"
+    path: "{{ git_repo_dir }}/mdxfind/mdxfind"
+    mode: a+x
+
+- name: Make mdsplit executable
+  ansible.builtin.file:
+    path: "{{ git_repo_dir }}/mdxfind/mdsplit"
     mode: a+x
 
 # Install rling
+# Note: Not doing the build since there are precompiled binaries and 
+# the build process can be a bit tricky
 - name: git checkout Rling from github
   ansible.builtin.git:
     repo: https://github.com/Cynosureprime/rling.git
     dest: "{{ git_repo_dir }}/rling"
     clone: yes
+
+# Install rlight
+- name: git checkout Rlite from github
+  ansible.builtin.git:
+    repo: https://github.com/Cynosureprime/rlite.git
+    dest: "{{ git_repo_dir }}/rlite"
+    clone: yes
+    update: yes
+  register: rlite_update
+
+# Only build rlite if the repo has been updated or the system has been updated
+- block:
+  # Clean up install directory
+  - name: Make Clean rlite
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/rlite"
+      target: clean
+  
+  # Build rlite
+  - name: Make rlite
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/rlite"
+
+  when: rlite_update.changed or do_update_packages or do_upgrade_os
+
+# Install slider
+- name: git checkout slider from github
+  ansible.builtin.git:
+    repo: https://github.com/Cynosureprime/slider.git
+    dest: "{{ git_repo_dir }}/slider"
+    clone: yes
+    update: yes
+  register: slider_update
+
+# Only build slider if the repo has been updated or the system has been updated
+- block:
+  # Clean up install directory
+  - name: Make Clean slider
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/slider"
+      target: clean
+  
+  # Build slider
+  - name: Make slider
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/slider"
+
+  when: slider_update.changed or do_update_packages or do_upgrade_os

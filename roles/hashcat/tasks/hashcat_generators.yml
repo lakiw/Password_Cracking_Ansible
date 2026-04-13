@@ -1,0 +1,176 @@
+---
+# Responsible for installing password guess generators and assorted tools
+# that are maintained by the Hashcat team
+
+# Install hashcat_utils
+- name: Git checkout of Hashcat Utils
+  ansible.builtin.git:
+    repo: https://github.com/hashcat/hashcat-utils.git
+    dest: "{{ git_repo_dir }}/hashcat-utils"
+    clone: yes
+    update: yes
+  register: hc_utils_update
+
+# Only build hashcat_utils if it has been updated or the system has been updated
+- block:
+  # Clean hashcat_utils
+  - name: Clean Hashcat_Utils
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hashcat-utils/"
+      target: clean
+
+  # Build hashcat_utils
+  - name: Make Hashcat_Utils
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/hashcat-utils/"
+      target: all
+
+  # Find the created binaries (so we can move them)
+  - name: Find hashcat utils binaries
+    ansible.builtin.find:
+      paths: "{{ git_repo_dir }}/hashcat-utils/src"
+      file_type: file
+      use_regex: false
+      patterns:
+        - '*.bin'
+    register: hc_utils_binlist
+
+  # Move the binary files to the tools directory
+  - name: Move hashcat utils binaries to tools directory
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "{{ tools_dir }}/hashcat-utils/"
+      remote_src: true
+      mode: "a+x"
+    loop: "{{ hc_utils_binlist.files|map(attribute='path')|list }}"
+
+  when: hc_utils_update.changed or do_update_packages or do_upgrade_os
+
+# Install prince preprocessor
+- name: Git checkout of princeprocessor
+  ansible.builtin.git:
+    repo: https://github.com/hashcat/princeprocessor.git
+    dest: "{{ git_repo_dir }}/princeprocessor"
+    clone: yes
+    update: yes
+  register: prince_update
+
+# Only build princeprocessor if it has been updated or the system has been updated
+- block:
+  - name: Clean princeprocessor
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/princeprocessor/src"
+      target: clean
+
+  # Build princeprocessor
+  - name: Make princeprocessor
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/princeprocessor/src"
+      target: all
+
+  # Find the created binaries (so we can move them)
+  - name: Find princeprocessor binaries
+    ansible.builtin.find:
+      paths: "{{ git_repo_dir }}/princeprocessor/src"
+      file_type: file
+      use_regex: false
+      patterns:
+        - '*.bin'
+    register: prince_binlist
+
+  # Move the binary files to the tools directory
+  - name: Move princeprocessor binaries to tools directory
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "{{ tools_dir }}/princeprocessor/"
+      remote_src: true
+      mode: "a+x"
+    loop: "{{ prince_binlist.files|map(attribute='path')|list }}"
+
+  when: prince_update.changed or do_update_packages or do_upgrade_os
+
+# Install maskprocessor
+- name: Git checkout of maskprocessor
+  ansible.builtin.git:
+    repo: https://github.com/hashcat/maskprocessor.git
+    dest: "{{ git_repo_dir }}/maskprocessor"
+    clone: yes
+    update: yes
+  register: mask_update
+
+# Only build maskprocessor if it has been updated or the system has been updated
+- block:
+  - name: Clean maskprocessor
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/maskprocessor/src"
+      target: clean
+
+  # Build maskprocessor
+  - name: Make maskprocessor
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/maskprocessor/src"
+      target: all
+
+  # Find the created binaries (so we can move them)
+  - name: Find maskprocessor binaries
+    ansible.builtin.find:
+      paths: "{{ git_repo_dir }}/maskprocessor/src"
+      file_type: file
+      use_regex: false
+      patterns:
+        - '*.bin'
+    register: mask_binlist
+
+  # Move the binary files to the tools directory
+  - name: Move maskprocessor binaries to tools directory
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "{{ tools_dir }}/maskprocessor/"
+      remote_src: true
+      mode: "a+x"
+    loop: "{{ mask_binlist.files|map(attribute='path')|list }}"
+
+  when: mask_update.changed or do_update_packages or do_upgrade_os
+
+# Install kwprocessor
+- name: Git checkout of kwprocessor
+  ansible.builtin.git:
+    repo: https://github.com/hashcat/kwprocessor.git
+    dest: "{{ git_repo_dir }}/kwprocessor"
+    clone: yes
+    update: yes
+  register: kw_update
+
+# Only build kwprocessor if it has been updated or the system has been updated
+- block:
+  - name: Clean kwprocessor
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/kwprocessor"
+      target: clean
+
+  # Build kwprocessor
+  - name: Make kwprocessor
+    community.general.make:
+      chdir: "{{ git_repo_dir }}/kwprocessor"
+      target: all
+
+  # Find the created binaries (so we can move them)
+  - name: Find kwprocessor binaries
+    ansible.builtin.find:
+      paths: "{{ git_repo_dir }}/kwprocessor/src"
+      file_type: file
+      use_regex: false
+      patterns:
+        - '*.bin'
+    register: kw_binlist
+
+  # Move the binary files to the tools directory
+  - name: Move kwprocessor binaries to tools directory
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "{{ tools_dir }}/kwprocessor/"
+      remote_src: true
+      mode: "a+x"
+    loop: "{{ kw_binlist.files|map(attribute='path')|list }}"
+
+  when: kw_update.changed or do_update_packages or do_upgrade_os

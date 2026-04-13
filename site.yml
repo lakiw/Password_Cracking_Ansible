@@ -10,7 +10,7 @@
   roles:
     - update_os
 
-- name: Install a build tools (make, gcc, etc)
+- name: Install common build tools (make, gcc, etc)
   hosts: all
   roles:
     - build_tools

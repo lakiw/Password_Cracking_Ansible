@@ -44,15 +44,20 @@ That's the problem these Ansible playbooks are meant to solve. By automating the
 - NVidia Drivers
 
 #### Analysis Tools
-- PACK
-- PACK2
+- PACK (IPHelix Version)
+- PACK2 (Hops Version)
 - Rulefinder
 - Jupyter Labs Password Analysis Workbooks
+- Analyze HC Restore
 
 #### Password Guess Generators and Mangling Tools
 - PCFG Tools
 - RLing
+- RLite
 - hashcat_utils
+- princeprocessor
+- maskprocessor
+- kwprocessor
 
 #### Password Dumping Tools
 - hcxtools
